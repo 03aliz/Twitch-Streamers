@@ -1,0 +1,79 @@
+$(document).ready(function() {
+
+  var channelArray = ["freecodecamp", "storbeck", "terakilobyte", "habathcx", "RobotCaleb", "thomasballinger", "noobs2ninjas", "beohoff", "cretetion", "comster404", "brunofin", "monstercat", "OgamingSC2"] //array of streamers
+
+  function twitchStreamers() {
+
+    channelArray.forEach(function(value, index) {
+      var apiURL = " https://api.twitch.tv/kraken/channels/" + value + "?callback=?";
+      var streamURL = " https://api.twitch.tv/kraken/streams/" + value + "?callback=?";
+
+      $.getJSON(apiURL, function(data1) {
+        $.getJSON(streamURL, function(data2) {
+          var logoPic = data1.logo;
+          var name = data1.name;
+          var status = data1.status.substring(0,50) +"...";
+          var link = data1.url;
+          var stream = data2.stream;
+
+          if (logoPic === null) {
+            logoPic = " https://pixabay.com/static/uploads/photo/2016/04/16/10/33/icon-1332777__180.png";
+          } // if no logo pic then replace with this
+
+          if (status === null) {
+            status = "Offline";
+          }//if streamer is not streaming then status is offline.
+
+          if (status == 422) {
+            logoPic = "https://pixabay.com/static/uploads/photo/2016/04/16/10/33/icon-1332777__180.png";
+            name = value;
+            status = "Account Closed" // if account doesn't exist say account closed
+
+          } else if (stream == null && status !== 422) { 
+            status = "Offline";
+
+          } // if not online then status is offline.
+
+          var output = '<div class="' + 'streams">' + '<img src="' + logoPic + '"/>' + '<a href="' + link + '" target=_blank>' + name + '</a>' +
+            '<p>' +
+            status +
+            '</p>' +
+            '</div>'
+
+          if (stream) { // if online
+            output = '<div class="' + 'online">' + '<img src="' + logoPic + '"/>' + '<a href="' + link + '" target=_blank>' + name + '</a>' +
+              '<p>' +
+              status + '<div class="circle' + '">' + '</div>'
+            '</p>' +
+            '</div>'
+
+            $(output).prependTo("#wrapper");
+
+          } else {
+            $("#wrapper").append(output);
+          }
+
+        });
+
+      })
+
+      $("#online").click(function() {
+        $(".streams").hide();
+        $(".online").show();
+
+      })
+      $("#offline").click(function() {
+        $(".online").hide();
+        $(".streams").show();
+      })
+      $("#all").click(function() {
+        $(".online").show();
+        $(".streams").show();
+      })
+
+    });
+  };
+
+  twitchStreamers();
+
+});
